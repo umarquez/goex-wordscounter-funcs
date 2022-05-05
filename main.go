@@ -8,13 +8,8 @@ import (
 	"words_counter/services/static_text"
 )
 
-func extractWordsDeprecated(text string) []string {
-	words := strings.Split(text, " ")
-	fmt.Printf("total words: %v\n\n", len(words))
-	return words
-}
-
-func extractWords(text string) []string {
+func extractWords(txtGenerator func() string) []string {
+	text := txtGenerator()
 	words := regexp.MustCompile(`[a-zA-Z/-]+`).FindAllString(text, -1)
 	fmt.Printf("total words: %v\n\n", len(words))
 	return words
@@ -36,14 +31,12 @@ func printMapContent(content map[string]int) {
 }
 
 func main() {
-	txt := static_text.GetText
-	wordList := extractWords(txt())
+	wordList := extractWords(static_text.GetText)
 	wordsCounters := countWordsOccurrences(wordList...)
 	printMapContent(wordsCounters)
 
 	fmt.Println("\n------------------\n")
 	// changing source
-	txt = random_text_api.GetText
 	// single line call
-	printMapContent(countWordsOccurrences(extractWords(txt())...))
+	printMapContent(countWordsOccurrences(extractWords(random_text_api.GetText)...))
 }
